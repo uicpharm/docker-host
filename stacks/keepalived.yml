@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+    keepalived:
+        image: lolhens/keepalived-swarm:latest
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /usr/bin/docker:/usr/bin/docker:ro
+        networks:
+            - host
+        deploy:
+            mode: global
+            placement:
+                constraints: [node.role == manager]
+        environment:
+            KEEPALIVED_INTERFACE: enp0s1
+        env_file: keepalived.env
+
+networks:
+    host:
+        external: true
+        name: host
