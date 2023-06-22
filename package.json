@@ -1,0 +1,28 @@
+{
+   "name": "docker-host",
+   "version": "1.0.0",
+   "description": "Installation and configuration for setting up a Docker host in our environment.",
+   "scripts": {
+      "test": "npm run check-node",
+      "standards": "npm run shellcheck && npm run yamllint && npm run markdownlint && npm run cspell && npm run commitlint",
+      "check-node": "check-node-version --node 18.14.2 --npm 9.5.0",
+      "commitlint": "commitlint --from 5b66a72cc2632916",
+      "cspell": "cspell . --show-suggestions --no-progress",
+      "shellcheck": "shellcheck **/*.sh",
+      "markdownlint": "markdownlint **/*.md --ignore node_modules",
+      "yamllint": "yamllint **/*.yml .*/**/*.yml --ignore=node_modules"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+ssh://git@github.com/uicpharm/docker-host.git"
+   },
+   "author": "Josh Curtiss <josh@curtiss.me>",
+   "license": "MIT",
+   "bugs": {
+      "url": "https://github.com/uicpharm/docker-host/issues"
+   },
+   "homepage": "https://github.com/uicpharm/docker-host#readme",
+   "devDependencies": {
+      "@uicpharm/standardization": "github:uicpharm/standardization#0.2.0"
+   }
+}
