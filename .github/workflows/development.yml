@@ -1,0 +1,24 @@
+name: Development
+
+on:
+   push:
+   pull_request:
+   workflow_call:
+   workflow_dispatch:
+
+jobs:
+   test:
+      name: Lint and Test
+      # We must manually provide these steps, instead of use actions and workflows in
+      # `uicpharm/workflows`, since this is a public repo and our workflows are private.
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v2
+           with: { fetch-depth: 0 }
+         - uses: actions/setup-node@v3
+           with:
+               node-version-file: ".nvmrc"
+               cache: "npm"
+         - run: npm ci
+         - run: npm run test --if-present
+         - run: npm run standards --if-present
