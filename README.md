@@ -28,7 +28,8 @@ If you cannot login as root and can only sudo, then download it to your home dir
 execute it from there:
 
 ```sh
-curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh > init.sh
+curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh > init.sh && \
+chmod +x init.sh && \
 sudo ./init.sh
 ```
 
