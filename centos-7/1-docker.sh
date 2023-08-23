@@ -42,7 +42,7 @@ useradd -M -g docker -u 1001 docker
 
 # Either init or join a swarm
 PS3="What cluster action will this server perform? "
-select action in "Initialize a Swarm" "Join a Swarm"; do
+select action in "Initialize a Swarm" "Join a Swarm" "Do not set up Swarm"; do
    if [ -z "$action" ]; then echo "'$REPLY' is not a choice."; else break; fi
 done
 if [ "$REPLY" = "1" ]; then
@@ -51,13 +51,24 @@ if [ "$REPLY" = "1" ]; then
    echo IMPORTANT: Copy the command above. You will paste it to the other nodes. && \
    echo -n "Hit enter when ready to proceed. " && \
    read -r
-else
+elif [ "$REPLY" = "2" ]; then
    echo -n "Please paste the join command provided by the first node: "
    read -r cmd
    eval "$cmd"
+else
+   echo 'Skipping Swarm configuration.'
 fi
 
 echo "Please provide credentials to $(tput smul)ghcr.io/uicpharm$(tput sgr0) for future projects to download images."
-sudo docker login ghcr.io/uicpharm
+PROCEED=false
+while ! $PROCEED; do
+   if docker login ghcr.io/uicpharm; then
+      PROCEED=true
+   else
+      echo -n 'Did you want to try again? [Y/n]: '
+      read -r yorn
+      [[ "${yorn:-Y}" =~ [Nn] ]] && PROCEED=true && echo Skipping Docker authentication.
+   fi
+done
 
 echo Done installing Docker!
