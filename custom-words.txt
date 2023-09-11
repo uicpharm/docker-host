@@ -5,6 +5,7 @@ epel
 gluster
 glusterd
 glusterfs
+inet
 installdependencies
 jcurt
 lolhens
