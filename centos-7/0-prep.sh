@@ -8,7 +8,7 @@ echo '
 '
 sleep 2
 yum clean all && yum makecache
-yum update -y
+yum update -y --skip-broken
 yum install -y epel-release
 yum install -y nano htop bzip2
 echo Done updating OS packages!
