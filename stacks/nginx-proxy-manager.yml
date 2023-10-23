@@ -14,7 +14,7 @@ secrets:
 services:
 
    app:
-      image: 'jc21/nginx-proxy-manager:latest'
+      image: 'jc21/nginx-proxy-manager:2'
       depends_on:
          - db
       deploy:
@@ -40,7 +40,7 @@ services:
          - backend
 
    db:
-      image: 'jc21/mariadb-aria:latest'
+      image: 'jc21/mariadb-aria:10.4.15'
       deploy:
          mode: replicated
          replicas: 1

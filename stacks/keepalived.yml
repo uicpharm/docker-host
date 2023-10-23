@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
    keepalived:
-      image: lolhens/keepalived-swarm:latest
+      image: lolhens/keepalived-swarm:0.2.3
       volumes:
          - /var/run/docker.sock:/var/run/docker.sock
          - /usr/bin/docker:/usr/bin/docker:ro
