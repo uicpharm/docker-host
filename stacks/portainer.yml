@@ -22,7 +22,7 @@ services:
          - '9000:9000'
          - '9443:9443'
       volumes:
-         - '../data/portainer:/data'
+         - 'data:/data'
       networks:
          - agent_network
       deploy:
@@ -35,3 +35,6 @@ networks:
    agent_network:
       driver: overlay
       attachable: true
+
+volumes:
+   data:

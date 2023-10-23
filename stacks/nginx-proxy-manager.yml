@@ -31,8 +31,8 @@ services:
          DB_MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
          DB_MYSQL_NAME: 'npm'
       volumes:
-         - '../data/nginxproxymanager/data:/data'
-         - '../data/nginxproxymanager/letsencrypt:/etc/letsencrypt'
+         - 'data:/data'
+         - 'letsencrypt:/etc/letsencrypt'
       secrets:
          - nginxproxymanager_db_password
       networks:
@@ -50,9 +50,14 @@ services:
          MYSQL_USER: 'npm'
          MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
       volumes:
-         - '../data/nginxproxymanager/db:/var/lib/mysql'
+         - 'db:/var/lib/mysql'
       secrets:
          - nginxproxymanager_db_password
          - nginxproxymanager_db_root_password
       networks:
          - backend
+
+volumes:
+   db:
+   data:
+   letsencrypt:
