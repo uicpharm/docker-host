@@ -1,58 +1,63 @@
 version: '3.1'
 
 networks:
-    frontend:
-        external: true
-    backend:
+   frontend:
+      external: true
+   backend:
 
 secrets:
-    nginxproxymanager_db_password:
-        external: true
-    nginxproxymanager_db_root_password:
-        external: true
+   nginxproxymanager_db_password:
+      external: true
+   nginxproxymanager_db_root_password:
+      external: true
 
 services:
 
-    app:
-        image: 'jc21/nginx-proxy-manager:latest'
-        depends_on:
-            - db
-        deploy:
-            mode: replicated
-            replicas: 1
-        ports:
-            - '80:80'
-            - '81:81'
-            - '443:443'
-        environment:
-            DB_MYSQL_HOST: 'db'
-            DB_MYSQL_PORT: 3306
-            DB_MYSQL_USER: 'npm'
-            DB_MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
-            DB_MYSQL_NAME: 'npm'
-        volumes:
-            - '../data/nginxproxymanager/data:/data'
-            - '../data/nginxproxymanager/letsencrypt:/etc/letsencrypt'
-        secrets:
-            - nginxproxymanager_db_password
-        networks:
-            - frontend
-            - backend
+   app:
+      image: 'jc21/nginx-proxy-manager:2'
+      depends_on:
+         - db
+      deploy:
+         mode: replicated
+         replicas: 1
+      ports:
+         - '80:80'
+         - '81:81'
+         - '443:443'
+      environment:
+         DB_MYSQL_HOST: 'db'
+         DB_MYSQL_PORT: 3306
+         DB_MYSQL_USER: 'npm'
+         DB_MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
+         DB_MYSQL_NAME: 'npm'
+      volumes:
+         - 'data:/data'
+         - 'letsencrypt:/etc/letsencrypt'
+      secrets:
+         - nginxproxymanager_db_password
+      networks:
+         - frontend
+         - backend
 
-    db:
-        image: 'jc21/mariadb-aria:latest'
-        deploy:
-            mode: replicated
-            replicas: 1
-        environment:
-            MYSQL_ROOT_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_root_password
-            MYSQL_DATABASE: 'npm'
-            MYSQL_USER: 'npm'
-            MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
-        volumes:
-            - '../data/nginxproxymanager/db:/var/lib/mysql'
-        secrets:
-            - nginxproxymanager_db_password
-            - nginxproxymanager_db_root_password
-        networks:
-            - backend
+   db:
+      image: 'jc21/mariadb-aria:10.4.15'
+      deploy:
+         mode: replicated
+         replicas: 1
+      environment:
+         MYSQL_ROOT_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_root_password
+         MYSQL_DATABASE: 'npm'
+         MYSQL_USER: 'npm'
+         MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
+      volumes:
+         - 'db:/var/lib/mysql'
+      secrets:
+         - nginxproxymanager_db_password
+         - nginxproxymanager_db_root_password
+      networks:
+         - backend
+
+volumes:
+   db:
+   data:
+   letsencrypt:
