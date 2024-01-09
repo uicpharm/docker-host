@@ -10,5 +10,5 @@ sleep 2
 yum clean all && yum makecache
 yum update -y --skip-broken
 yum install -y epel-release
-yum install -y nano htop bzip2
+yum install -y nano htop bzip2 rsync
 echo Done updating OS packages!
