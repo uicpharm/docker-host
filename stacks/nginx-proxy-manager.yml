@@ -40,7 +40,7 @@ services:
          - backend
 
    db:
-      image: 'jc21/mariadb-aria:10.4.15'
+      image: 'jc21/mariadb-aria:10.11.5'
       deploy:
          mode: replicated
          replicas: 1
