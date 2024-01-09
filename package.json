@@ -5,7 +5,7 @@
    "scripts": {
       "test": "npm run check-node",
       "standards": "npm run shellcheck && npm run yamllint && npm run markdownlint && npm run cspell && npm run commitlint",
-      "check-node": "check-node-version --node 18.14.2 --npm 9.5.0",
+      "check-node": "check-node-version --node 20.10.0 --npm 10.2.3",
       "commitlint": "commitlint --from 5b66a72cc2632916",
       "cspell": "cspell . --show-suggestions --no-progress",
       "shellcheck": "shellcheck **/*.sh",
