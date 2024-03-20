@@ -6,9 +6,6 @@ echo "
 Please select a base directory where we will install things. We will put a
 directory called 'docker-host' ${bold}inside${norm} that directory. Use the base directory to
 store other app configurations and data so it's conveniently all in one place.
-
-${bold}Important:${norm} If you are setting up Docker Swarm, this base directory should be a
-shared persistent volume with all of the nodes in your cluster.
 "
 PS3="Select the base directory or type your own: "
 select BASEDIR in /data ~; do
