@@ -26,12 +26,16 @@ if [ -z "$(command -v git)" ]; then
    yorn="${yorn:-Y}"
    if [[ "$yorn" =~ [Yy] ]]; then
       # Install git with apt or yum
-      if [ -n "$(command -v yum)" ]; then
+      if [ -n "$(command -v dnf)" ]; then
+         dnf install -y git || exit 1
+      elif [ -n "$(command -v yum)" ]; then
          yum install -y git || exit 1
       elif [ -n "$(command -v apt)"  ]; then
          apt update -y && apt install -y git || exit 1
+      elif [ -n "$(command -v brew)"  ]; then
+         brew install git || exit 1
       else
-         echo "Could not determine application repository. Supports apt and yum."
+         echo "Could not determine application repository. Supports apt, brew, dnf and yum."
          exit 1
       fi
    else
