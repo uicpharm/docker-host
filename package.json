@@ -23,6 +23,6 @@
    },
    "homepage": "https://github.com/uicpharm/docker-host#readme",
    "devDependencies": {
-      "@uicpharm/standardization": "github:uicpharm/standardization#0.3.0"
+      "@uicpharm/standardization": "github:uicpharm/standardization#0.4.0"
    }
 }
