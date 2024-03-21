@@ -51,7 +51,7 @@ cd docker-host || exit 1
 
 PS3="Select your Linux flavor: "
 # shellcheck disable=SC2010
-select flavor in $(ls -d -- */ | grep -v data | grep -v exp | grep -v stacks | cut -d'/' -f1); do
+select flavor in $(ls -d -- */ | grep -v data | grep -v exp | grep -v shared | grep -v stacks | grep -v node_modules | cut -d'/' -f1); do
    break
 done
 
