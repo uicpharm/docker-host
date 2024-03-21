@@ -1,5 +1,7 @@
+aarch
 adduser
 buildx
+codeready
 containerd
 epel
 gluster
@@ -10,8 +12,12 @@ installdependencies
 jcurt
 lolhens
 makecache
+nodocker
+rmul
+rpms
 runuser
 scriptnum
+setaf
 smul
 stackinstaller
 stackname
