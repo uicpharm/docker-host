@@ -14,7 +14,7 @@ including macOS, by running [stacks/setup.sh](./stacks/setup.sh).
 Login as root and execute:
 
 ```sh
-source <(curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh)
+source <(curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/jcurt/rhel-9/init.sh)
 ```
 
 The script will download the project and walk you through executing the scripts.
@@ -23,7 +23,7 @@ If you cannot login as root and can only sudo, then download it to your home dir
 execute it from there:
 
 ```sh
-curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh > init.sh && \
+curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/jcurt/rhel-9/init.sh > init.sh && \
 chmod +x init.sh && \
 sudo ./init.sh
 ```

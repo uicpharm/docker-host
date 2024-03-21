@@ -48,6 +48,7 @@ fi
 mkdir -p "$BASEDIR" && cd "$BASEDIR" || exit 1
 [ ! -d 'docker-host' ] && git clone https://github.com/uicpharm/docker-host.git
 cd docker-host || exit 1
+git checkout jcurt/rhel-9
 
 PS3="Select your Linux flavor: "
 # shellcheck disable=SC2010
