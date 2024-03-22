@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Set up portainer
-echo '
+echo "$(tput bold)
 #
 # Installing Portainer as a stack...
 #
-'
+$(tput sgr0)"
 sleep 2
 scr_dir="${0%/*}"
-docker stack deploy -c "$scr_dir"/portainer.yml portainer
+docker-compose -f "$scr_dir"/portainer.yml up -d
 echo Done installing Portainer!
