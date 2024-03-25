@@ -8,5 +8,6 @@
          "path": "custom-words.txt"
       }
    ],
+   "enableFiletypes": ["json", "markdown", "shellscript", "yaml"],
    "dictionaries": ["proj-custom-words"]
 }
