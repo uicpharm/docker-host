@@ -8,8 +8,10 @@ echo "$(tput bold)
 $(tput sgr0)"
 sleep 2
 scr_dir="${0%/*}"
-[ -z "$(docker network ls -qf name=frontend)" ] && docker network create -d overlay --scope swarm --attachable frontend
-[ -z "$(docker secret ls -qf name=nginxproxymanager_db_password)" ] && openssl rand -base64 32 | docker secret create nginxproxymanager_db_password -
-[ -z "$(docker secret ls -qf name=nginxproxymanager_db_root_password)" ] && openssl rand -base64 32 | docker secret create nginxproxymanager_db_root_password -
+sec_dir="$scr_dir/../secrets"
+mkdir -p "$sec_dir"
+[ -z "$(docker network ls -qf name=frontend)" ] && docker network create frontend
+[ ! -f "$sec_dir/nginxproxymanager_db_password.txt" ] && openssl rand -hex 32 > $sec_dir/nginxproxymanager_db_password.txt
+[ ! -f "$sec_dir/nginxproxymanager_db_root_password.txt" ] && openssl rand -hex 32 > $sec_dir/nginxproxymanager_db_root_password.txt
 docker-compose -f "$scr_dir"/nginx-proxy-manager.yml up -d
 echo Done installing Nginx Proxy Manager!
