@@ -20,6 +20,7 @@ runuser
 scriptnum
 setaf
 setsebool
+shellenv
 smul
 stackinstaller
 stackname
