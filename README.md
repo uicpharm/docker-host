@@ -3,18 +3,13 @@
 Script and configuration for standing up a Docker host. This includes Docker, multiple
 configured stacks, and a self-hosted GitHub Actions Runner.
 
-## Before you start
-
-If you are indeed setting up a cluster, the data directory where everything goes should
-be a **SHARED PERSISTENT STORAGE** volume, whether that be via NFS or any other means
-that your virtualization environment supports. You're expected to have this already set
-up before you begin.
-
 ## Installation
 
-Right now, installation only supports CentOS 7. Actual Docker installation is handled by
+Right now, installation supports [CentOS](https://www.centos.org) 7 and
+[Red Hat](https://www.redhat.com) 9 (which also works with RHEL lookalikes such as
+[Rocky Linux](https://rockylinux.org)). Actual Docker installation is handled by
 the installation script, but you can use the stacks installer on any *nix machine,
-including macOS, using [stacks/setup.sh](./stacks/setup.sh).
+including macOS, by running [stacks/setup.sh](./stacks/setup.sh).
 
 Login as root and execute:
 
@@ -33,15 +28,10 @@ chmod +x init.sh && \
 sudo ./init.sh
 ```
 
-## A note about Swarm
-
-The Docker installation sets up a swarm. On the first server, you should choose to
-initialize the swarm. Then the following servers should join the swarm.
-
-You can wait until you run installation on the last server in your cluster before you
-install the stacks, although there's no harm done in "reinstalling" the stacks.
-
 ## Removing the GitHub Runner Service
+
+If you've installed the GitHub Runner service and now you want to remove it, you can do so
+by following these steps:
 
 As `root`:
 

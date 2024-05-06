@@ -6,9 +6,6 @@ echo "
 Please select a base directory where we will install things. We will put a
 directory called 'docker-host' ${bold}inside${norm} that directory. Use the base directory to
 store other app configurations and data so it's conveniently all in one place.
-
-${bold}Important:${norm} If you are setting up Docker Swarm, this base directory should be a
-shared persistent volume with all of the nodes in your cluster.
 "
 PS3="Select the base directory or type your own: "
 select BASEDIR in /data ~; do
@@ -22,19 +19,35 @@ select BASEDIR in /data ~; do
    [[ "${yorn:-Y}" =~ [Yy] ]] && break
 done
 
-# If git cmd is not installed, ask to install it
-if [ -z "$(command -v git)" ]; then
+# Determine if git needs to be installed. On macOS, we check if developer tools are installed. On
+# all other platforms, we just check if `git --version` is successful.
+NEED_GIT=true
+if [ "$(uname)" = "Darwin" ]; then
+   xcode-select --print-path &> /dev/null && NEED_GIT=false
+else
+   git --version &> /dev/null && NEED_GIT=false
+fi
+
+if $NEED_GIT; then
    echo -n 'We have to install git or we cannot proceed. Is that okay? [Y/n]: '
    read -r yorn
    yorn="${yorn:-Y}"
    if [[ "$yorn" =~ [Yy] ]]; then
       # Install git with apt or yum
-      if [ -n "$(command -v yum)" ]; then
+      if [ -n "$(command -v dnf)" ]; then
+         dnf install -y git || exit 1
+      elif [ -n "$(command -v yum)" ]; then
          yum install -y git || exit 1
+      elif [ -n "$(command -v xcode-select)" ]; then
+         xcode-select --install
+         # Wait until the interactive install is done
+         echo -n "Follow the GUI installer. Waiting for installation to finish"
+         until xcode-select --print-path &> /dev/null; do echo -n '.'; sleep 5; done
+         echo '\nGreat, developer tools are installed!'
       elif [ -n "$(command -v apt)"  ]; then
          apt update -y && apt install -y git || exit 1
       else
-         echo "Could not determine application repository. Supports apt and yum."
+         echo "Could not determine application repository. Supports apt, dnf, yum, and xcode-select."
          exit 1
       fi
    else
@@ -44,13 +57,15 @@ if [ -z "$(command -v git)" ]; then
 fi
 
 # Clone the project if the dir doesn't exist
-mkdir -p "$BASEDIR" && cd "$BASEDIR" || exit 1
-[ ! -d 'docker-host' ] && git clone https://github.com/uicpharm/docker-host.git
-cd docker-host || exit 1
+REPO_DIR="$BASEDIR/docker-host"
+REPO_URL="https://github.com/uicpharm/docker-host.git"
+mkdir -p "$BASEDIR" || exit 1
+[ ! -d "$REPO_DIR" ] && git clone "$REPO_URL" "$REPO_DIR"
+cd "$REPO_DIR" || exit 1
 
 PS3="Select your Linux flavor: "
 # shellcheck disable=SC2010
-select flavor in $(ls -d -- */ | grep -v data | grep -v exp | grep -v stacks | cut -d'/' -f1); do
+select flavor in $(ls -d -- */ | grep -v exp | grep -v secrets | grep -v shared | grep -v stacks | grep -v node_modules | cut -d'/' -f1); do
    break
 done
 

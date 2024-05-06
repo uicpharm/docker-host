@@ -1,15 +1,28 @@
 #!/bin/bash
 
 # Set up Nginx Proxy Manager
-echo '
+echo "$(tput bold)
 #
 # Installing Nginx Proxy Manager as a stack...
 #
-'
+$(tput sgr0)"
 sleep 2
 scr_dir="${0%/*}"
-[ -z "$(docker network ls -qf name=frontend)" ] && docker network create -d overlay --scope swarm --attachable frontend
-[ -z "$(docker secret ls -qf name=nginxproxymanager_db_password)" ] && openssl rand -base64 32 | docker secret create nginxproxymanager_db_password -
-[ -z "$(docker secret ls -qf name=nginxproxymanager_db_root_password)" ] && openssl rand -base64 32 | docker secret create nginxproxymanager_db_root_password -
-docker stack deploy -c "$scr_dir"/nginx-proxy-manager.yml nginxproxymanager
+sec_dir="$scr_dir/../secrets"
+mkdir -p "$sec_dir"
+# Set up common "frontend" network shared among containers
+[ -z "$(docker network ls -qf name=frontend)" ] && docker network create frontend
+# Secrets for the passwords
+[ ! -f "$sec_dir/nginxproxymanager_db_password.txt" ] && openssl rand -hex 32 > "$sec_dir/nginxproxymanager_db_password.txt"
+[ ! -f "$sec_dir/nginxproxymanager_db_root_password.txt" ] && openssl rand -hex 32 > "$sec_dir/nginxproxymanager_db_root_password.txt"
+# If we're using podman, create the pod and include the podman arguments
+svc_name="nginxproxymanager"
+if [[ $(docker --version) == podman* ]]; then
+   podman pod create --name "$svc_name"
+   podman_args=('--podman-run-args' "--pod $svc_name")
+fi
+# Start the stack
+docker-compose "${podman_args[@]}" -f "$scr_dir"/nginx-proxy-manager.yml up -d
+# If we're using podman and `podman-install-service` is available, create the systemd service
+command -v podman-install-service &> /dev/null && podman-install-service "$svc_name"
 echo Done installing Nginx Proxy Manager!

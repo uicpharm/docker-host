@@ -1,40 +1,23 @@
-version: '3.2'
+name: portainer
+
+networks:
+   frontend:
+      external: true
 
 services:
 
-   agent:
-      image: portainer/agent:2.19.4
-      volumes:
-         - /var/run/docker.sock:/var/run/docker.sock
-         - /var/lib/docker/volumes:/var/lib/docker/volumes
-      networks:
-         - agent_network
-      deploy:
-         mode: global
-         placement:
-            constraints: [node.platform.os == linux]
-
    portainer:
-      image: 'portainer/portainer-ce:2.19.4'
-      command: -H tcp://tasks.agent:9001 --tlsskipverify
+      image: docker.io/portainer/portainer-ce:2.20.0
+      container_name: portainer
+      privileged: true
       ports:
-         - '8000:8000'
-         - '9000:9000'
-         - '9443:9443'
+         - 9000:9000
+         - 9443:9443
       volumes:
-         - 'data:/data'
+         - data:/data
+         - /var/run/docker.sock:/var/run/docker.sock
       networks:
-         - agent_network
-      deploy:
-         mode: replicated
-         replicas: 1
-         placement:
-            constraints: [node.role == manager]
-
-networks:
-   agent_network:
-      driver: overlay
-      attachable: true
+         - frontend
 
 volumes:
    data:
