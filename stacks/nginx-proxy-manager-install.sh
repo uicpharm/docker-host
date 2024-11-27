@@ -9,6 +9,8 @@ $(tput sgr0)"
 sleep 2
 scr_dir="${0%/*}"
 sec_dir="$scr_dir/../secrets"
+yml_file="$scr_dir/nginx-proxy-manager.yml"
+[[ $* == -u || $* == --upgrade ]] && upgrade_args=(--pull always)
 mkdir -p "$sec_dir"
 # Set up common "frontend" network shared among containers
 [ -z "$(docker network ls -qf name=frontend)" ] && docker network create frontend
@@ -19,10 +21,10 @@ mkdir -p "$sec_dir"
 svc_name="nginxproxymanager"
 if [[ $(docker --version) == podman* ]]; then
    podman pod create --name "$svc_name"
-   podman_args=('--podman-run-args' "--pod $svc_name")
+   podman-compose --podman-run-args "--pod $svc_name ${upgrade_args[*]}" -f "$yml_file" up -d
+else
+   docker-compose -f "$yml_file" up -d "${upgrade_args[@]}"
 fi
-# Start the stack
-docker-compose "${podman_args[@]}" -f "$scr_dir"/nginx-proxy-manager.yml up -d
 # If we're using podman and `podman-install-service` is available, create the systemd service
 command -v podman-install-service &> /dev/null && podman-install-service "$svc_name"
 echo Done installing Nginx Proxy Manager!

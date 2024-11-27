@@ -28,7 +28,14 @@ chmod +x init.sh && \
 sudo ./init.sh
 ```
 
-## Removing the GitHub Runner Service
+## FAQs
+
+### How do I *[insert cool thing here]* with the stacks?
+
+For more documentation about the stacks, please view the
+[stacks readme](./stacks/README.md).
+
+### How do I remove the GitHub Runner Service?
 
 If you've installed the GitHub Runner service and now you want to remove it, you can do so
 by following these steps:
