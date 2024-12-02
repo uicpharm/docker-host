@@ -17,6 +17,7 @@ elif [ -d '/usr/local/bin' ]; then
    bin_dir='/usr/local/bin'
 fi
 if [ -n "$bin_dir" ]; then
+   ln -s "$scr_dir/bin/deploy.sh" "$bin_dir/deploy"
    ln -s "$scr_dir/bin/docker-compose.sh" "$bin_dir/docker-compose"
    ln -s "$scr_dir/bin/podman-install-service.sh" "$bin_dir/podman-install-service"
 fi
