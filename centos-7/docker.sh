@@ -1,5 +1,7 @@
 #!/bin/bash
 
+scr_dir=$(realpath "${0%/*}")
+
 SCRIPT_TITLE="Install Docker"
 if [[ " $* " == *" --title "* ]]; then echo "$SCRIPT_TITLE"; exit 0; fi
 echo -e "$(tput bold)\n#\n# $SCRIPT_TITLE \n#\n$(tput sgr0)"
@@ -20,6 +22,16 @@ elif [ -n "$(command -v firewall-cmd)" ]; then
    echo Opening up ports with firewall-cmd...
    firewall-cmd --add-port=2376/tcp --permanent
    firewall-cmd --reload
+fi
+
+# Add scripts to /usr/bin so it will be in the path
+if [ -d '/usr/bin' ]; then
+   bin_dir='/usr/bin'
+elif [ -d '/usr/local/bin' ]; then
+   bin_dir='/usr/local/bin'
+fi
+if [ -n "$bin_dir" ]; then
+   ln -f -s "$(realpath "$scr_dir/../shared/bin/deploy.sh")" "$bin_dir/deploy"
 fi
 
 # Start/Enable Docker
