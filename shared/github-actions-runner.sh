@@ -15,7 +15,7 @@ sleep 2
 
 # Calculate installer filename based on system
 org="uicpharm"
-ver="2.314.1"
+ver="2.321.0"
 [ "$(uname)" = 'Linux' ] && os='linux'
 [ "$(uname)" = 'Darwin' ] && os='osx'
 arch=$(uname -m | sed -e 's/aarch/arm/' -e 's/x86_/x/')
