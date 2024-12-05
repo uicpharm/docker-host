@@ -1,6 +1,8 @@
 aarch
+actionsdir
 adduser
 buildx
+chcon
 codeready
 containerd
 epel
@@ -13,9 +15,12 @@ jcurt
 lolhens
 makecache
 nodocker
+NOPASSWD
 realpath
 rmul
 rpms
+runnerdir
+runsvc
 runuser
 scriptnum
 setaf
