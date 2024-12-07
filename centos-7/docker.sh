@@ -24,6 +24,13 @@ elif [ -n "$(command -v firewall-cmd)" ]; then
    firewall-cmd --reload
 fi
 
+# Find the `docker compose` plugin
+if ! which docker-compose &> /dev/null; then
+   echo Searching for the Docker Compose plugin...
+   docker_compose_plugin_path=$(find / -name 'cli-plugins/docker-compose' -print -quit 2>/dev/null)
+   [[ -n $docker_compose_plugin_path ]] && echo "Found it at: $docker_compose_plugin_path" || echo 'Not found.'
+fi
+
 # Add scripts to /usr/bin so it will be in the path
 if [ -d '/usr/bin' ]; then
    bin_dir='/usr/bin'
@@ -32,6 +39,7 @@ elif [ -d '/usr/local/bin' ]; then
 fi
 if [ -n "$bin_dir" ]; then
    ln -f -s "$(realpath "$scr_dir/../shared/bin/deploy.sh")" "$bin_dir/deploy"
+   [[ -n $docker_compose_plugin_path ]] && ln -s "$docker_compose_plugin_path" "$bin_dir/docker-compose"
 fi
 
 # Start/Enable Docker
