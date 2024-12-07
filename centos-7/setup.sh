@@ -11,6 +11,9 @@ containerized application and related tooling.
 
 This installation has multiple incremental steps. You can choose to only
 execute part of the installation process if you do not want the later parts.
+
+Note that installation of a GitHub Actions runner cannot be accomplished on a
+CentOS 7 server due to old dependencies, so this step is not available.
 "
 
 "$scr_dir/setup-shared.sh"
