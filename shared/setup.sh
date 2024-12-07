@@ -16,6 +16,6 @@ done
 for (( i=0; i<REPLY; i++ )); do
    script="${scripts[$i]}"
    clear
-   $script
+   ! $script && echo "$(tput setaf 1)Since there was an error, we are aborting.$(tput sgr0)" && exit 1
    sleep 5
 done
