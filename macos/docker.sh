@@ -1,5 +1,7 @@
 #!/bin/bash
 
+scr_dir=$(realpath "${0%/*}")
+
 SCRIPT_TITLE="Install Docker Desktop"
 if [[ " $* " == *" --title "* ]]; then echo "$SCRIPT_TITLE"; exit 0; fi
 echo -e "$(tput bold)\n#\n# $SCRIPT_TITLE \n#\n$(tput sgr0)"
@@ -13,3 +15,12 @@ open -a Docker
 echo -n 'Waiting for Docker Desktop to start up...'
 sleep 20
 until docker ps &> /dev/null; do echo -n '.'; sleep 5; done
+
+# Add scripts to /usr/local/bin so it will be in the path
+# (On macOS, we must use this one because /usr/bin is not permitted)
+if [ -d '/usr/local/bin' ]; then
+   bin_dir='/usr/local/bin'
+fi
+if [ -n "$bin_dir" ]; then
+   ln -f -s "$(realpath "$scr_dir/../shared/bin/deploy.sh")" "$bin_dir/deploy"
+fi
