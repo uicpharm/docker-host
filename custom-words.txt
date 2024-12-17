@@ -3,6 +3,7 @@ actionsdir
 adduser
 buildx
 chcon
+chgrp
 codeready
 containerd
 epel
@@ -14,6 +15,7 @@ installdependencies
 jcurt
 lolhens
 makecache
+mktemp
 nodocker
 NOPASSWD
 realpath
