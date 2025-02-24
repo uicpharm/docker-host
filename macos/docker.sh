@@ -22,5 +22,7 @@ if [ -d '/usr/local/bin' ]; then
    bin_dir='/usr/local/bin'
 fi
 if [ -n "$bin_dir" ]; then
-   ln -f -s "$(realpath "$scr_dir/../shared/bin/deploy.sh")" "$bin_dir/deploy"
+   for scr_name in "$scr_dir"/../shared/bin/*.sh; do
+      ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
+   done
 fi
