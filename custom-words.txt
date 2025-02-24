@@ -1,6 +1,7 @@
 aarch
 actionsdir
 adduser
+buildah
 buildx
 chcon
 chgrp
@@ -18,6 +19,7 @@ makecache
 mktemp
 nodocker
 NOPASSWD
+opencontainers
 realpath
 rmul
 rpms
