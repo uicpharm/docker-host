@@ -30,7 +30,8 @@ if [ -d '/usr/local/bin' ]; then
    bin_dir='/usr/local/bin'
 fi
 if [ -n "$bin_dir" ]; then
+   echo "Installing scripts to $bin_dir may require a password."
    for scr_name in "$scr_dir"/../shared/bin/*.sh; do
-      ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
+      sudo ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
    done
 fi
