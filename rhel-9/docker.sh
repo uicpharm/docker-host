@@ -30,8 +30,9 @@ touch /etc/containers/nodocker
 
 # Network fix to allow multiple networks associated to a container
 # Ref: https://virtualzone.de/posts/podman-multiple-networks/
-sysctl -w net.ipv4.conf.all.rp_filter=2
-echo "net.ipv4.conf.all.rp_filter=2" >> /etc/sysctl.conf
+setting='net.ipv4.conf.all.rp_filter=2'
+sysctl -w "$setting"
+grep -q "$setting" /etc/sysctl.conf || echo "$setting" >> /etc/sysctl.conf
 
 # SELinux setting for systemd service creation
 setsebool -P container_manage_cgroup on

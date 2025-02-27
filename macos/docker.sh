@@ -8,13 +8,21 @@ echo -e "$(tput bold)\n#\n# $SCRIPT_TITLE \n#\n$(tput sgr0)"
 sleep 2
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
-brew install --cask docker
-brew install docker-compose
+if which docker &>/dev/null; then
+   echo 'Already installed: Docker'
+else
+   brew install --cask docker
+fi
+if which docker-compose &>/dev/null; then
+   echo 'Already installed: docker-compose'
+else
+   brew install docker-compose
+fi
 sleep 3
 open -a Docker
 echo -n 'Waiting for Docker Desktop to start up...'
-sleep 20
 until docker ps &> /dev/null; do echo -n '.'; sleep 5; done
+echo
 
 # Add scripts to /usr/local/bin so it will be in the path
 # (On macOS, we must use this one because /usr/bin is not permitted)
