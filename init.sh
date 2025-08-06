@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Params
+branch=main
+[[ $1 != -* && -n $1 ]] && branch=$1
+
 bold=$(tput bold)
 norm=$(tput sgr0)
 echo "
@@ -60,7 +64,7 @@ fi
 REPO_DIR="$BASEDIR/docker-host"
 REPO_URL="https://github.com/uicpharm/docker-host.git"
 mkdir -p "$BASEDIR" || exit 1
-[ ! -d "$REPO_DIR" ] && git clone "$REPO_URL" "$REPO_DIR"
+[ ! -d "$REPO_DIR" ] && git clone -b "$branch" "$REPO_URL" "$REPO_DIR"
 cd "$REPO_DIR" || exit 1
 
 PS3="Select your Linux flavor: "
