@@ -4,6 +4,27 @@
 branch=main
 [[ $1 != -* && -n $1 ]] && branch=$1
 
+# Asks a yes/no question and returns 0 for 'yes' and 1 for 'no'. If the user does not
+# provide a response, it uses the default value.
+function yorn() {
+   local question=$1
+   local default=${2:-y}
+   while true; do
+      echo -n "$question " >&2
+      [[ $default =~ [Yy] ]] && echo -n "[Y/n]: " >&2 || echo -n "[y/N]: " >&2
+      read -r response
+      [[ -z $response ]] && response=$default
+      response=$(echo "${response:0:1}" | tr '[:upper:]' '[:lower:]')
+      if [[ $response == y ]]; then
+         return 0
+      elif [[ $response == n ]]; then
+         return 1
+      else
+         echo "Please answer 'y' or 'n'." >&2
+      fi
+   done
+}
+
 bold=$(tput bold)
 norm=$(tput sgr0)
 echo "
@@ -14,13 +35,9 @@ store other app configurations and data so it's conveniently all in one place.
 PS3="Select the base directory or type your own: "
 select BASEDIR in /data ~; do
    BASEDIR="${BASEDIR:-$REPLY}"
-   if [ -d "$BASEDIR" ]; then
-      echo -n "Install files in existing directory $BASEDIR, right? [Y/n]: "
-   else
-      echo -n "Create the directory $BASEDIR, right? [Y/n]: "
-   fi
-   read -r yorn
-   [[ "${yorn:-Y}" =~ [Yy] ]] && break
+   question="Create the directory $BASEDIR, right?"
+   [[ -d $BASEDIR ]] && question="Install files in existing directory $BASEDIR, right?"
+   yorn "$question" y && break
 done
 
 # Determine if git needs to be installed. On macOS, we check if developer tools are installed. On
@@ -33,10 +50,7 @@ else
 fi
 
 if $NEED_GIT; then
-   echo -n 'We have to install git or we cannot proceed. Is that okay? [Y/n]: '
-   read -r yorn
-   yorn="${yorn:-Y}"
-   if [[ "$yorn" =~ [Yy] ]]; then
+   if yorn 'We have to install git or we cannot proceed. Is that okay?' 'y'; then
       # Install git with apt or yum
       if [ -n "$(command -v dnf)" ]; then
          dnf install -y git || exit 1
