@@ -28,7 +28,14 @@ function yorn() {
 bold=$(tput bold)
 ul=$(tput smul)
 norm=$(tput sgr0)
-echo "
+echo "$bold
+   ___             __               __ __           __
+  / _ \ ___  ____ / /__ ___  ____  / // /___   ___ / /_
+ / // // _ \/ __//  '_// -_)/ __/ / _  // _ \ (_-</ __/
+/____/ \___/\__//_/\_\ \__//_/   /_//_/ \___//___/\__/
+
+Installer for container environments on UIC Pharmacy servers
+$norm
 Please select a base directory where we will install things. We will put a
 directory called 'docker-host' ${bold}inside${norm} that directory. Use the base directory to
 store other app configurations and data so it's conveniently all in one place.
@@ -36,8 +43,8 @@ store other app configurations and data so it's conveniently all in one place.
 PS3="Select the base directory or type your own: "
 select BASEDIR in /data ~; do
    BASEDIR="${BASEDIR:-$REPLY}"
-   question="Create the directory $BASEDIR, right?"
-   [[ -d $BASEDIR ]] && question="Install files in existing directory $BASEDIR, right?"
+   question="Create the directory $ul$BASEDIR$norm, right?"
+   [[ -d $BASEDIR ]] && question="Install files in existing directory $ul$BASEDIR$norm, right?"
    yorn "$question" y && break
 done
 
@@ -80,6 +87,7 @@ REPO_DIR="$BASEDIR/docker-host"
 REPO_URL="https://github.com/uicpharm/docker-host.git"
 mkdir -p "$BASEDIR" || exit 1
 [ ! -d "$REPO_DIR" ] && git clone -b "$branch" "$REPO_URL" "$REPO_DIR"
+[[ -d $REPO_DIR ]] && echo "The docker-host project is installed at $ul$REPO_DIR$norm."
 cd "$REPO_DIR" || exit 1
 
 # Calculate the default flavor based on what we see on the system
