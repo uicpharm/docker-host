@@ -99,19 +99,28 @@ $interactive && (
 # Detect podman-install-service
 which podman-install-service &> /dev/null && HAS_SERVICE_INSTALLER=true || HAS_SERVICE_INSTALLER=false
 
-# Stop the stack. Detect if its a service with systemctl or just a docker-compose stack.
-# By querying `is-active`, and then checking `docker-compose ps`, it will even catch the
+# Function that will use `podman-compose` or `docker compose` depending on presence of podman
+compose() {
+   if $IS_PODMAN; then
+      podman-compose "$@"
+   else
+      docker compose "$@"
+   fi
+}
+
+# Stop the stack. Detect if its a service with systemctl or just a compose stack.
+# By querying `is-active`, and then checking `compose ps`, it will even catch the
 # scenario when the service is newly created but systemctl doesn't see it yet.
 if which systemctl &> /dev/null && ! systemctl status "$pod_name" 2>&1 | grep -q 'could not be found' && systemctl -q is-active "$pod_name"; then
    systemctl stop "$pod_name"
-elif [[ $(docker-compose -f "$stack_path" --env-file "$env_file" ps -q 2>/dev/null | wc -w) -gt 0 ]]; then
-   docker-compose -f "$stack_path" down
+elif [[ $(compose -f "$stack_path" --env-file "$env_file" ps -q 2>/dev/null | wc -w) -gt 0 ]]; then
+   compose -f "$stack_path" down
 fi
 
 # Create pod
 $IS_PODMAN && ! podman pod exists "$pod_name" && podman pod create --name "$pod_name"
 
-# Prep docker-compose args
+# Prep compose args
 podman_args=()
 docker_args=('-d')
 $IS_PODMAN && podman_args+=(--pod "$pod_name")
@@ -125,7 +134,7 @@ fi
 [[ ${#podman_args[@]} -gt 0 ]] && podman_args=(--podman-run-args "${podman_args[*]}")
 (
    cd "$dir" && \
-   docker-compose "${podman_args[@]}" -f "$stack_path" --env-file "$env_file" up "${docker_args[@]}" && \
+   compose "${podman_args[@]}" -f "$stack_path" --env-file "$env_file" up "${docker_args[@]}" && \
    $IS_PODMAN && $HAS_SERVICE_INSTALLER && podman-install-service "$pod_name" -n && \
    echo "Installed service $pod_name!"
 )
