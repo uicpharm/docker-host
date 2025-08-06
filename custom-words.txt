@@ -9,6 +9,7 @@ codeready
 containerd
 dotenv
 epel
+getenforce
 gluster
 glusterd
 glusterfs
