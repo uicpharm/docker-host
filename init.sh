@@ -26,6 +26,7 @@ function yorn() {
 }
 
 bold=$(tput bold)
+ul=$(tput smul)
 norm=$(tput sgr0)
 echo "
 Please select a base directory where we will install things. We will put a
@@ -81,14 +82,34 @@ mkdir -p "$BASEDIR" || exit 1
 [ ! -d "$REPO_DIR" ] && git clone -b "$branch" "$REPO_URL" "$REPO_DIR"
 cd "$REPO_DIR" || exit 1
 
-PS3="Select your Linux flavor: "
-# shellcheck disable=SC2010
-select flavor in $(ls -d -- */ | grep -v exp | grep -v secrets | grep -v shared | grep -v stacks | grep -v node_modules | cut -d'/' -f1); do
-   break
-done
+# Calculate the default flavor based on what we see on the system
+default_flavor=''
+if [[ "$(uname)" == "Darwin" ]]; then
+   default_flavor="macos"
+elif [[ -f /etc/os-release ]]; then
+   # shellcheck source=/dev/null
+   . /etc/os-release
+   id_lowercase=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
+   major_version=${VERSION_ID%%.*}
+   default_flavor=${id_lowercase}-${major_version}
+fi
 
-if [ -z "$flavor" ]; then
-   echo "'$REPLY' is not a choice. Aborting."
+# Available flavor installers
+flavors=$(find . -mindepth 1 -maxdepth 1 \( -type d -o -type l \) ! -name 'exp' ! -name 'node_modules' ! -name 's*' ! -name '.*' | cut -d'/' -f2 | sort)
+[[ ! $flavors =~ $default_flavor ]] && default_flavor=''
+
+if [[ -n $default_flavor ]] && yorn "It looks like you're running on $ul$default_flavor$norm, is that right?" y; then
+   flavor=$default_flavor
+else
+   PS3="Select your Linux flavor: "
+   select flavor in $flavors; do
+      [[ -z $flavor ]] && echo "Invalid selection, try again!" >&2 && continue
+      break
+   done
+fi
+
+if [[ ! $flavors =~ $flavor ]]; then
+   echo "Aborting because $ul$flavor$norm is not a valid choice."
 else
    cd "$flavor" || exit 1
    ./setup.sh
