@@ -8,7 +8,7 @@ echo -e "$(tput bold)\n#\n# $SCRIPT_TITLE \n#\n$(tput sgr0)"
 sleep 2
 
 # Standard Install
-dnf install -y container-tools podman-compose
+dnf install -y python-dotenv container-tools podman-compose
 
 # Add scripts to /usr/bin so it will be in the path
 if [ -d '/usr/bin' ]; then

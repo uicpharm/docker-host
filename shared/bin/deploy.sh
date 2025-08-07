@@ -123,15 +123,14 @@ $IS_PODMAN && ! podman pod exists "$pod_name" && podman pod create --name "$pod_
 # Prep compose args
 podman_args=()
 docker_args=('-d')
-$IS_PODMAN && podman_args+=(--pod "$pod_name")
+$IS_PODMAN && podman_args+=(--in-pod "$pod_name")
 
 # Upgrade stack if requested
 if $upgrade; then
-   $IS_PODMAN && podman_args+=(--pull always) || docker_args+=(--pull always)
+   $IS_PODMAN && podman_args+=(--podman-run-args '--pull always') || docker_args+=(--pull always)
 fi
 
-# Finalize args, start stack and install service
-[[ ${#podman_args[@]} -gt 0 ]] && podman_args=(--podman-run-args "${podman_args[*]}")
+# Start stack and install service
 (
    cd "$dir" && \
    compose "${podman_args[@]}" -f "$stack_path" --env-file "$env_file" up "${docker_args[@]}" && \
