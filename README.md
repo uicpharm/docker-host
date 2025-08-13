@@ -38,9 +38,8 @@ For more documentation about the stacks, please view the
 ### Using the `deploy` script
 
 For all environments, a `deploy` script is installed in the system that helps with
-deploying applications that use the docker-host environment. They provide a
-docker-compose stack and any additional required files (`.env` file, etc), and then
-deploy with this script.
+deploying applications that use the docker-host environment. They provide a compose stack
+and any additional required files (`.env` file, etc), and then deploy with this script.
 
 It takes these standard steps for deployment of UIC Pharmacy stacks:
 

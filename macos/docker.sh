@@ -13,11 +13,6 @@ if which docker &>/dev/null; then
 else
    brew install --cask docker
 fi
-if which docker-compose &>/dev/null; then
-   echo 'Already installed: docker-compose'
-else
-   brew install docker-compose
-fi
 sleep 3
 open -a Docker
 echo -n 'Waiting for Docker Desktop to start up...'

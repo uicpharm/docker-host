@@ -36,8 +36,8 @@ same data/volumes you had already set up.
 #### Example: Stopping the stack
 
 ```bash
-# On a Docker host, just use docker-compose:
-docker-compose -f stacks/nginx-proxy-manager.yml down
+# On a Docker host, just use docker compose:
+docker compose -f stacks/nginx-proxy-manager.yml down
 # On a Podman host, you should use systemctl:
 systemctl stop nginxproxymanager
 ```

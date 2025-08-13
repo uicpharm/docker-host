@@ -21,9 +21,9 @@ mkdir -p "$sec_dir"
 svc_name="nginxproxymanager"
 if [[ $(docker --version) == podman* ]]; then
    podman pod create --name "$svc_name"
-   podman-compose --podman-run-args "--pod $svc_name ${upgrade_args[*]}" -f "$yml_file" up -d
+   podman-compose --in-pod "$svc_name" --podman-run-args "${upgrade_args[*]}" -f "$yml_file" up -d
 else
-   docker-compose -f "$yml_file" up -d "${upgrade_args[@]}"
+   docker compose -f "$yml_file" up -d "${upgrade_args[@]}"
 fi
 # If we're using podman and `podman-install-service` is available, create the systemd service
 command -v podman-install-service &> /dev/null && podman-install-service "$svc_name"
