@@ -1,8 +1,41 @@
 #!/bin/bash
 
+# Params
+branch=main
+[[ $1 != -* && -n $1 ]] && branch=$1
+
+# Asks a yes/no question and returns 0 for 'yes' and 1 for 'no'. If the user does not
+# provide a response, it uses the default value.
+function yorn() {
+   local question=$1
+   local default=${2:-y}
+   while true; do
+      echo -n "$question " >&2
+      [[ $default =~ [Yy] ]] && echo -n "[Y/n]: " >&2 || echo -n "[y/N]: " >&2
+      read -r response
+      [[ -z $response ]] && response=$default
+      response=$(echo "${response:0:1}" | tr '[:upper:]' '[:lower:]')
+      if [[ $response == y ]]; then
+         return 0
+      elif [[ $response == n ]]; then
+         return 1
+      else
+         echo "Please answer 'y' or 'n'." >&2
+      fi
+   done
+}
+
 bold=$(tput bold)
+ul=$(tput smul)
 norm=$(tput sgr0)
-echo "
+echo "$bold
+   ___             __               __ __           __
+  / _ \ ___  ____ / /__ ___  ____  / // /___   ___ / /_
+ / // // _ \/ __//  '_// -_)/ __/ / _  // _ \ (_-</ __/
+/____/ \___/\__//_/\_\ \__//_/   /_//_/ \___//___/\__/
+
+Installer for container environments on UIC Pharmacy servers
+$norm
 Please select a base directory where we will install things. We will put a
 directory called 'docker-host' ${bold}inside${norm} that directory. Use the base directory to
 store other app configurations and data so it's conveniently all in one place.
@@ -10,13 +43,9 @@ store other app configurations and data so it's conveniently all in one place.
 PS3="Select the base directory or type your own: "
 select BASEDIR in /data ~; do
    BASEDIR="${BASEDIR:-$REPLY}"
-   if [ -d "$BASEDIR" ]; then
-      echo -n "Install files in existing directory $BASEDIR, right? [Y/n]: "
-   else
-      echo -n "Create the directory $BASEDIR, right? [Y/n]: "
-   fi
-   read -r yorn
-   [[ "${yorn:-Y}" =~ [Yy] ]] && break
+   question="Create the directory $ul$BASEDIR$norm, right?"
+   [[ -d $BASEDIR ]] && question="Install files in existing directory $ul$BASEDIR$norm, right?"
+   yorn "$question" y && break
 done
 
 # Determine if git needs to be installed. On macOS, we check if developer tools are installed. On
@@ -29,10 +58,7 @@ else
 fi
 
 if $NEED_GIT; then
-   echo -n 'We have to install git or we cannot proceed. Is that okay? [Y/n]: '
-   read -r yorn
-   yorn="${yorn:-Y}"
-   if [[ "$yorn" =~ [Yy] ]]; then
+   if yorn 'We have to install git or we cannot proceed. Is that okay?' 'y'; then
       # Install git with apt or yum
       if [ -n "$(command -v dnf)" ]; then
          dnf install -y git || exit 1
@@ -60,17 +86,38 @@ fi
 REPO_DIR="$BASEDIR/docker-host"
 REPO_URL="https://github.com/uicpharm/docker-host.git"
 mkdir -p "$BASEDIR" || exit 1
-[ ! -d "$REPO_DIR" ] && git clone "$REPO_URL" "$REPO_DIR"
+[ ! -d "$REPO_DIR" ] && git clone -b "$branch" "$REPO_URL" "$REPO_DIR"
+[[ -d $REPO_DIR ]] && echo "The docker-host project is installed at $ul$REPO_DIR$norm."
 cd "$REPO_DIR" || exit 1
 
-PS3="Select your Linux flavor: "
-# shellcheck disable=SC2010
-select flavor in $(ls -d -- */ | grep -v exp | grep -v secrets | grep -v shared | grep -v stacks | grep -v node_modules | cut -d'/' -f1); do
-   break
-done
+# Calculate the default flavor based on what we see on the system
+default_flavor=''
+if [[ "$(uname)" == "Darwin" ]]; then
+   default_flavor="macos"
+elif [[ -f /etc/os-release ]]; then
+   # shellcheck source=/dev/null
+   . /etc/os-release
+   id_lowercase=$(echo "$ID" | tr '[:upper:]' '[:lower:]')
+   major_version=${VERSION_ID%%.*}
+   default_flavor=${id_lowercase}-${major_version}
+fi
 
-if [ -z "$flavor" ]; then
-   echo "'$REPLY' is not a choice. Aborting."
+# Available flavor installers
+flavors=$(find . -mindepth 1 -maxdepth 1 \( -type d -o -type l \) ! -name 'exp' ! -name 'node_modules' ! -name 's*' ! -name '.*' | cut -d'/' -f2 | sort)
+[[ ! $flavors =~ $default_flavor ]] && default_flavor=''
+
+if [[ -n $default_flavor ]] && yorn "It looks like you're running on $ul$default_flavor$norm, is that right?" y; then
+   flavor=$default_flavor
+else
+   PS3="Select your Linux flavor: "
+   select flavor in $flavors; do
+      [[ -z $flavor ]] && echo "Invalid selection, try again!" >&2 && continue
+      break
+   done
+fi
+
+if [[ ! $flavors =~ $flavor ]]; then
+   echo "Aborting because $ul$flavor$norm is not a valid choice."
 else
    cd "$flavor" || exit 1
    ./setup.sh
