@@ -1,6 +1,7 @@
 #!/bin/bash
 
 scr_dir=$(realpath "${0%/*}")
+[[ -z $DEV ]] && DEV=false
 
 SCRIPT_TITLE="Install Docker"
 if [[ " $* " == *" --title "* ]]; then echo "$SCRIPT_TITLE"; exit 0; fi
@@ -22,15 +23,21 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Add scripts to /usr/bin so it will be in the path
-if [ -d '/usr/bin' ]; then
-   bin_dir='/usr/bin'
-elif [ -d '/usr/local/bin' ]; then
-   bin_dir='/usr/local/bin'
+if [[ -d /usr/bin ]]; then
+   bin_dir=/usr/bin
+elif [[ -d /usr/local/bin ]]; then
+   bin_dir=/usr/local/bin
 fi
-if [ -n "$bin_dir" ]; then
+if [[ -n $bin_dir ]]; then
+   echo "Installing scripts to $(tput smul)$bin_dir$(tput rmul) (may require a password):"
    for scr_name in "$scr_dir"/../shared/bin/*.sh; do
-      ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
+      cmd=(install -b -v) && $DEV && cmd=(ln -f -v -s)
+      cmd+=("$(realpath "$scr_name")")
+      cmd+=("$bin_dir/$(basename "$scr_name" .sh)")
+      "${cmd[@]}"
    done
+else
+   echo "$(tput setaf 1)Cannot install scripts to $(tput smul)$bin_dir$(tput rmul) because it wasn't found.$(tput sgr0)" >&2
 fi
 
 echo Done installing Docker!
