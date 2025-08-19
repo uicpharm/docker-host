@@ -97,7 +97,7 @@ runuser -l $user -c "cd $actionsdir && ./config.sh --url https://github.com/$org
    cd "$actionsdir" && \
    ./svc.sh install "$user" && \
    # For SELinux systems, make sure runsvc.sh has the correct SELinux context
-   if which chcon &> /dev/null; then
+   if which getenforce > /dev/null && getenforce > /dev/null; then
       echo "Setting the SELinux context for ${ul}runsvc.sh$rmul."
       chcon -t bin_t -v "$actionsdir/runsvc.sh"
    fi && \
