@@ -23,6 +23,7 @@ nodocker
 NOPASSWD
 opencontainers
 realpath
+Retzky
 rmul
 rpms
 runnerdir
