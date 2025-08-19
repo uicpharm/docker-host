@@ -42,8 +42,8 @@ if [[ -z "$svc_name" ]] || [[ $svc_name == -* ]]; then
    exit 1
 fi
 
-# Only run if "docker" is answering as podman
-if [[ $(docker --version) == podman* ]]; then
+# Only run if we are using podman
+if [[ $(podman --version 2>/dev/null) == podman* ]]; then
    (
       cd /etc/systemd/system || exit 1
       echo "Setting up service as $(tput bold)$svc_name$(tput sgr0):"

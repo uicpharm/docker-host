@@ -105,20 +105,29 @@ shift $((OPTIND - 1))
 # Check Docker file
 [[ -z $dockerfile ]] && err "You must provide a Docker file." && exit 2
 
+# Check if podman or docker is present
+if [[ $(docker --version 2> /dev/null) =~ Docker ]]; then
+   container_binary=docker
+   is_podman=false
+elif [[ $(podman --version 2> /dev/null) =~ podman ]]; then
+   container_binary=podman
+   is_podman=true
+else
+   err 'This script requires either Docker or Podman. Aborting.'
+   ext 1
+fi
+
 # Check dependencies, and abort if any are missing
-for c in tput realpath dirname basename docker jq; do
+for c in tput realpath dirname basename "$container_binary" jq; do
    if ! which "$c" &>/dev/null; then
       err "The $ul$c$rmul command is required by this script. Aborting."
       exit 1
    fi
 done
 
-# Detect podman
-[[ $(docker --version) == podman* ]] && is_podman=true || is_podman=false
-
 # Check arch... when running as podman, only support native arch.
 # Get arch info from docker/podman itself. Sadly, they report that info differently.
-docker_info=$(docker info -f json)
+docker_info=$("$container_binary" info -f json)
 native_arch=$(jq -r '.OSType' <<< "$docker_info")/$(jq -r '.Architecture' <<< "$docker_info")
 $is_podman && native_arch=$(jq -r '.host.os' <<< "$docker_info")/$(jq -r '.host.arch' <<< "$docker_info")
 if $is_podman && [[ $arches != "$native_arch" ]]; then
@@ -179,6 +188,7 @@ if $verbose; then
    echo
    echo "${bold}${ul}Building $img$norm"
    echo
+   echo "${bold}Container Tool:$norm $container_binary"
    [[ -n $builder ]] && echo "${bold}Builder:$norm $builder"
    echo "${bold}Dockerfile:$norm $dockerfile"
    echo "${bold}Context:$norm $context"
@@ -200,7 +210,7 @@ fi
 
 # Build images and push them to the registry
 $push && ! $is_podman && push_param=--push
-exec_cmd "docker build \
+exec_cmd "$container_binary build \
    -f $dockerfile \
    --platform $arches \
    $(for tag in "${tags[@]}"; do echo -n "-t $tag "; done) \
@@ -211,7 +221,7 @@ exec_cmd "docker build \
 
 # In podman, we have to push the tags after building
 $is_podman && $push && for tag in "${tags[@]}"; do
-   exec_cmd "docker push $tag"
+   exec_cmd "podman push $tag"
 done
 
 # Stop builder when done (not needed for podman)
