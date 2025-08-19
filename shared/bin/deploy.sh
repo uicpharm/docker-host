@@ -1,5 +1,6 @@
 #!/bin/bash
 
+version=1.0.0
 bold=$(tput bold)
 dim=$(tput dim)
 ul=$(tput smul)
@@ -14,8 +15,16 @@ verbose=false
 interactive=true
 env_file=
 
+display_version() {
+   hash=$(cat "$0" | sha256sum | cut -c1-8)
+   echo "$(basename "$0") version $version build $hash"
+}
+
 display_help() {
    cat <<EOF
+$bold$(display_version)$norm
+${red}UIC Retzky College of Pharmacy$norm
+
 Usage: $(basename "$0") <stack path> [OPTIONS]
 
 Deploys an application stack with UIC Pharmacy standards:
@@ -32,21 +41,19 @@ Options:
 -r, --repo              Specify the repo to login to. (Default: $ul$repo_default$rmul)
 -u, --upgrade           Upgrade by pulling the latest image.
 -v, --verbose           Provide more verbose output.
+-V, --version           Print version and exit.
 EOF
 }
 
 # Positional parameter: Stack Path
-if [[ $1 == -* || -z $1 ]]; then
-   [[ $1 == -h || $1 == --help ]] || echo "${red}You must provide a stack path.$norm" >&2
-   display_help; exit 1;
-else
+if ! [[ $1 == -* || -z $1 ]]; then
    stack_path=$(realpath "$1")
    shift
 fi
 
 # Collect optional arguments.
 # spellchecker: disable-next-line
-while getopts hnuve:r:-: OPT; do
+while getopts hnuvVe:r:-: OPT; do
    # Ref: https://stackoverflow.com/a/28466267/519360
    if [ "$OPT" = "-" ]; then
       OPT="${OPTARG%%=*}"       # extract long option name
@@ -55,6 +62,7 @@ while getopts hnuve:r:-: OPT; do
    fi
    case "$OPT" in
       h | help) display_help; exit 0 ;;
+      V | version) display_version; exit 0 ;;
       r | repo) repo=$OPTARG ;;
       e | env-file) env_file=$(realpath "$OPTARG") ;;
       n | non-interactive) interactive=false ;;
@@ -67,6 +75,7 @@ done
 shift $((OPTIND - 1))
 
 # Validation
+[[ -z $stack_path ]] && echo "${red}You must provide a stack path.$norm" >&2 && exit 1
 [[ ! -e $stack_path ]] && echo "${red}The stack $ul$stack_path$rmul doesn't exist.$norm" >&2 && exit 2
 
 dir=${stack_path%/*}

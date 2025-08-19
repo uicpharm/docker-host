@@ -1,5 +1,6 @@
 #!/bin/bash
 
+version=1.0.0
 bold=$(tput bold)
 ul=$(tput smul)
 rmul=$(tput rmul)
@@ -24,8 +25,16 @@ err() { echo "$red$1$norm" >&2; }
 warn() { echo "$yellow$1$norm" >&2; }
 exec_cmd() { if $dry_run; then echo "${yellow}Command:${norm} $1" | tr -s ' '; else eval "$1"; fi }
 
+display_version() {
+   hash=$(cat "$0" | sha256sum | cut -c1-8)
+   echo "$(basename "$0") version $version build $hash"
+}
+
 display_help() {
    cat <<EOF
+$bold$(display_version)$norm
+${red}UIC Retzky College of Pharmacy$norm
+
 Usage: $(basename "$0") <Dockerfile> [context] [OPTIONS]
 
 Builds and publishes a container image with UIC Pharmacy standards:
@@ -48,14 +57,12 @@ Options:
     --dry-run     Show what would've happened without executing.
     --no-push     Create the images, but do not push to registry.
 -v, --verbose     Provide more verbose output.
+-V, --version     Print version and exit.
 EOF
 }
 
 # Positional parameter: Docker file
-if [[ $1 == -* || -z $1 ]]; then
-   [[ $1 == -h || $1 == --help ]] || err "You must provide a Docker file."
-   display_help; exit 1;
-else
+if ! [[ $1 == -* || -z $1 ]]; then
    dockerfile=$(realpath "$1")
    shift
 fi
@@ -71,7 +78,7 @@ fi
 
 # Collect optional arguments.
 # spellchecker: disable-next-line
-while getopts heva:n:o:r:-: OPT; do
+while getopts hevVa:n:o:r:-: OPT; do
    # Ref: https://stackoverflow.com/a/28466267/519360
    if [ "$OPT" = "-" ]; then
       OPT="${OPTARG%%=*}"       # extract long option name
@@ -80,6 +87,7 @@ while getopts heva:n:o:r:-: OPT; do
    fi
    case "$OPT" in
       h | help) display_help; exit 0 ;;
+      V | version) display_version; exit 0 ;;
       a | arch) arches=$OPTARG ;;
       e | exact) exact=true ;;
       dry-run) dry_run=true ;;
@@ -93,6 +101,9 @@ while getopts heva:n:o:r:-: OPT; do
    esac
 done
 shift $((OPTIND - 1))
+
+# Check Docker file
+[[ -z $dockerfile ]] && err "You must provide a Docker file." && exit 2
 
 # Check dependencies, and abort if any are missing
 for c in tput realpath dirname basename docker jq; do
