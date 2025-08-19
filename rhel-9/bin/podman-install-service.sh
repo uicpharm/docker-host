@@ -3,6 +3,7 @@
 bold=$(tput bold)
 ul=$(tput smul)
 red=$(tput setaf 1)
+yellow=$(tput setaf 3)
 norm=$(tput sgr0)
 
 display_help() {
@@ -40,7 +41,7 @@ if [[ $(docker --version) == podman* ]]; then
       systemctl daemon-reload
       systemctl enable "$svc_name" "${systemctl_opts[@]}"
       if [[ ${systemctl_opts[*]} != *"--now"* ]]; then
-         echo "${red}Service was not restarted. You can't use systemctl until a system restart.$norm"
+         echo "${yellow}Service was not restarted. You can't use systemctl until a system restart.$norm"
       fi
       echo -e "\nExample usage: ${bold}${ul}systemctl start $svc_name$norm to start the stack.\n"
    )
