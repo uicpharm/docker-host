@@ -1,1 +1,0 @@
-../shared/ghcr-auth.sh
