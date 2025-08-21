@@ -21,6 +21,7 @@ echo
 
 # Add scripts to /usr/local/bin so it will be in the path
 # (On macOS, we must use this one because /usr/bin is not permitted)
+# TODO: Add support for real installation, or dev symlinking
 if [ -d '/usr/local/bin' ]; then
    bin_dir='/usr/local/bin'
 fi

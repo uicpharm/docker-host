@@ -22,6 +22,7 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Add scripts to /usr/bin so it will be in the path
+# TODO: Add support for real installation, or dev symlinking
 if [ -d '/usr/bin' ]; then
    bin_dir='/usr/bin'
 elif [ -d '/usr/local/bin' ]; then

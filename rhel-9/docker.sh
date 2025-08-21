@@ -11,6 +11,7 @@ sleep 2
 dnf install -y python-dotenv container-tools podman-compose
 
 # Add scripts to /usr/bin so it will be in the path
+# TODO: Add support for real installation, or dev symlinking
 if [ -d '/usr/bin' ]; then
    bin_dir='/usr/bin'
 elif [ -d '/usr/local/bin' ]; then
