@@ -7,8 +7,18 @@ echo "$(tput bold)
 #
 $(tput sgr0)"
 sleep 2
-scr_dir="${0%/*}"
-yml_file="$scr_dir/portainer.yml"
+scr_dir=$(realpath "$(dirname "$0")")
+[[ -z $DEV ]] && DEV=false
+
+# Determine target directory and install
+target_dir=/etc/portainer
+[[ "$(uname)" == "Darwin" || $EUID -ne 0 ]] && target_dir=$HOME/.portainer
+$DEV && target_dir=$scr_dir
+yml_file="$target_dir/portainer.yml"
+if ! $DEV; then
+   install -d "$target_dir"
+   install -b "$scr_dir/portainer.yml" "$yml_file"
+fi
 [[ $* == -u || $* == --upgrade ]] && upgrade_args=(--pull always)
 # Start the stack
 svc_name="portainer"
