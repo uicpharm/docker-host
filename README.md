@@ -5,11 +5,12 @@ configured stacks, and a self-hosted GitHub Actions Runner.
 
 ## Installation
 
-Right now, installation supports [CentOS](https://www.centos.org) 7 and
-[Red Hat](https://www.redhat.com) 9 (which also works with RHEL lookalikes such as
-[Rocky Linux](https://rockylinux.org)). Actual Docker installation is handled by
-the installation script, but you can use the stacks installer on any *nix machine,
-including macOS, by running [stacks/setup.sh](./stacks/setup.sh).
+Right now, installation supports [Red Hat](https://www.redhat.com) 9 (which also works
+with RHEL lookalikes such as [Rocky Linux](https://rockylinux.org)),
+[macOS](https://www.apple.com/os/macos), and [Ubuntu](https://ubuntu.com). WSL should be
+support by virtue of support for Ubuntu. Actual Docker installation is handled by the
+installation script, but you can use the stacks installer directly on any *nix machine by
+running [stacks/setup.sh](./stacks/setup.sh).
 
 Login as root and execute:
 
