@@ -21,23 +21,27 @@ Docker environment, making it easy to monitor and configure your Docker services
 
 ### How do I install the stacks without running the whole setup?
 
-You can run `./stacks/setup.sh` to just install the stacks, or run an individual stack's
-install script directly, such as `./stacks/nginx-proxy-manager-install.sh`.
+You can run the installer and specify just to install the stacks, like this:
+
+```bash
+bash <(curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh) --stacks-only
+```
+
+If you have downloaded or cloned the project, you can also run `./stacks/setup.sh`
+directly, to just install the stacks, or run an individual stack's install script
+directly, such as `./stacks/nginx-proxy-manager-install.sh`.
 
 ### How do I update the stacks with the latest version?
 
-First, ensure your `docker-host` instance is using the latest code by navigating to its
-directory and running `git pull`.
-
-For minor version bumps, you can stop the stack and reinstall it with the installer script
-and the `--upgrade` flag. This is not destructive; it will create containers using the
+To do this, you must download or clone the project and run the stack's installer directly,
+and add the `--upgrade` flag. This is not destructive; it will create containers using the
 same data/volumes you had already set up.
 
 #### Example: Stopping the stack
 
 ```bash
 # On a Docker host, just use docker compose:
-docker compose -f stacks/nginx-proxy-manager.yml down
+docker compose -f /etc/nginxproxymanager/nginx-proxy-manager.yml down
 # On a Podman host, you should use systemctl:
 systemctl stop nginxproxymanager
 ```

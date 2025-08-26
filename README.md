@@ -12,21 +12,10 @@ support by virtue of support for Ubuntu. Actual Docker installation is handled b
 installation script, but you can use the stacks installer directly on any *nix machine by
 running [stacks/setup.sh](./stacks/setup.sh).
 
-Login as root and execute:
+To begin a standard installation:
 
-```sh
-source <(curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh)
-```
-
-The script will download the project and walk you through executing the scripts.
-
-If you cannot login as root and can only sudo, then download it to your home directory and
-execute it from there:
-
-```sh
-curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh > init.sh && \
-chmod +x init.sh && \
-sudo ./init.sh
+```bash
+bash <(curl -H 'Cache-Control: no-cache, no-store' -o- https://raw.githubusercontent.com/uicpharm/docker-host/main/init.sh)
 ```
 
 ## FAQs
