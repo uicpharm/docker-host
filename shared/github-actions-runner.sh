@@ -15,7 +15,7 @@ sleep 2
 user=github
 runnerdir=runner
 org="uicpharm"
-runner_version="2.321.0"
+runner_version="2.328.0"
 
 # Detect OS/architecture
 [ "$(uname)" = 'Linux' ] && os='linux'
