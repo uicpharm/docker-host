@@ -28,11 +28,13 @@ if [ -z "$os" ] || [ -z "$arch" ]; then
    exit 1
 fi
 
-# Requires curl and jq utilities
-if [[ -z $(which curl) ]] || [[ -z $(which jq) ]]; then
-   echo "${red}${bold}This command requires ${ul}curl$rmul and ${ul}jq$rmul to work.$norm" >&2
-   exit 1
-fi
+# Required utilities
+for c in adduser curl jq passwd runuser sed usermod visudo; do
+   if ! which "$c" &>/dev/null; then
+      err "${red}${bold}The $ul$c$rmul command is required by this script. Aborting.$norm" >&2
+      exit 1
+   fi
+done
 
 # Compare our version to latest version on GitHub. If they're different, see if
 # the user would like to use the latest version instead.
