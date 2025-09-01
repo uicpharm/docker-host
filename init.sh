@@ -1,8 +1,18 @@
 #!/bin/bash
 
-# Params
+version=1.0.0
+bold=$(tput bold)
+red=$(tput setaf 1)
+yellow=$(tput setaf 3)
+ul=$(tput smul)
+rmul=$(tput rmul)
+norm=$(tput sgr0)
 branch=main
-[[ $1 != -* && -n $1 ]] && branch=$1
+dev=false
+help_only=false
+version_only=false
+stacks_only=false
+runner_only=false
 
 # Asks a yes/no question and returns 0 for 'yes' and 1 for 'no'. If the user does not
 # provide a response, it uses the default value.
@@ -25,70 +35,105 @@ function yorn() {
    done
 }
 
-bold=$(tput bold)
-ul=$(tput smul)
-norm=$(tput sgr0)
-echo "$bold
-   ___             __               __ __           __
-  / _ \ ___  ____ / /__ ___  ____  / // /___   ___ / /_
- / // // _ \/ __//  '_// -_)/ __/ / _  // _ \ (_-</ __/
-/____/ \___/\__//_/\_\ \__//_/   /_//_/ \___//___/\__/
+function display_version() {
+   echo -n "Docker Host version $version build "
+   find "$dir" -type f \( -name '*.sh' -o -name '*.yml' \) -not -path '*/node_modules/*' | \
+   sort | xargs cat | sha256sum | cut -c1-8
+}
 
-Installer for container environments on UIC Pharmacy servers
-$norm
-Please select a base directory where we will install things. We will put a
-directory called 'docker-host' ${bold}inside${norm} that directory. Use the base directory to
-store other app configurations and data so it's conveniently all in one place.
-"
-PS3="Select the base directory or type your own: "
-select BASEDIR in /data ~; do
-   BASEDIR="${BASEDIR:-$REPLY}"
-   question="Create the directory $ul$BASEDIR$norm, right?"
-   [[ -d $BASEDIR ]] && question="Install files in existing directory $ul$BASEDIR$norm, right?"
-   yorn "$question" y && break
+# Title for the script
+function display_title() {
+   local -r ver=$(display_version)
+   echo "$bold"
+   echo "   ___             __               __ __           __ "
+   echo "  / _ \ ___  ____ / /__ ___  ____  / // /___   ___ / /_"
+   echo " / // // _ \/ __//  '_// -_)/ __/ / _  // _ \ (_-</ __/"
+   echo "/____/ \___/\__//_/\_\ \__//_/   /_//_/ \___//___/\__/ "
+   echo
+   echo "Containerization on UIC Pharmacy servers $yellow(${ver/Docker Host version /v})"
+   echo "$norm"
+}
+
+# Help
+function display_help() {
+   display_title
+   cat <<EOF
+Usage: $0 [OPTIONS]
+
+Sets up an OS for container tooling and installs additional useful scripts for
+container management according to UIC Pharmacy standards:
+
+   - ${bold}deploy$norm: Helps deploy a stack.
+   - ${bold}publish$norm: Takes a Dockerfile and publishes multi-arch images.
+   - ${bold}podman-install-service$norm: Installs a Podman pod as a service.
+
+Options:
+-h, --help         Show this help message and exit.
+-d, --dev          Install in developer mode, just create a symlink.
+-b, --branch       Branch to use for installation files.
+    --stacks-only  Only run the stack installation.
+    --runner-only  Only run the GitHub Actions runner installation.
+-V, --version      Print version and exit.
+EOF
+}
+
+# Collect optional arguments.
+# spellchecker: disable-next-line
+while getopts hb:dV-: OPT; do
+   # Ref: https://stackoverflow.com/a/28466267/519360
+   if [ "$OPT" = "-" ]; then
+      OPT="${OPTARG%%=*}"       # extract long option name
+      OPTARG="${OPTARG#"$OPT"}" # extract long option argument (may be empty)
+      OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+   fi
+   case "$OPT" in
+      h | help) help_only=true ;;
+      b | branch) branch=$OPTARG ;;
+      d | dev) dev=true ;;
+      stacks-only) stacks_only=true ;;
+      runner-only) runner_only=true ;;
+      V | version) version_only=true ;;
+      \?) echo "${red}Invalid option: -$OPT$norm" >&2 ;;
+      *) echo "${red}Some of these options are invalid:$norm $*" >&2; exit 2 ;;
+   esac
+done
+shift $((OPTIND - 1))
+
+# Prerequisite commands
+for cmd in curl cut find gzip install mktemp sort tar tr; do
+   if ! which "$cmd" > /dev/null; then
+      echo "${bold}${red}This installer requires $ul$cmd$rmul to work.$norm" >&2
+      exit 1
+   fi
 done
 
-# Determine if git needs to be installed. On macOS, we check if developer tools are installed. On
-# all other platforms, we just check if `git --version` is successful.
-NEED_GIT=true
-if [ "$(uname)" = "Darwin" ]; then
-   xcode-select --print-path &> /dev/null && NEED_GIT=false
+# Load installer files into a temp directory
+export dev
+if $dev; then
+   dir=$(dirname "$(realpath "$0")")
+   echo "Will install from $dir in dev mode..."
 else
-   git --version &> /dev/null && NEED_GIT=false
+   echo "Downloading installation files from $branch branch..."
+   dir=$(mktemp -d -t uicpharm-docker-host-XXXXXX)
+   url=https://github.com/uicpharm/docker-host/archive/refs/heads/$branch.tar.gz
+   curl -fsL "$url" | tar xz --strip-components=1 -C "$dir"
 fi
 
-if $NEED_GIT; then
-   if yorn 'We have to install git or we cannot proceed. Is that okay?' 'y'; then
-      # Install git with apt or yum
-      if [ -n "$(command -v dnf)" ]; then
-         dnf install -y git || exit 1
-      elif [ -n "$(command -v yum)" ]; then
-         yum install -y git || exit 1
-      elif [ -n "$(command -v xcode-select)" ]; then
-         xcode-select --install
-         # Wait until the interactive install is done
-         echo -n "Follow the GUI installer. Waiting for installation to finish"
-         until xcode-select --print-path &> /dev/null; do echo -n '.'; sleep 5; done
-         echo '\nGreat, developer tools are installed!'
-      elif [ -n "$(command -v apt)"  ]; then
-         apt update -y && apt install -y git || exit 1
-      else
-         echo "Could not determine application repository. Supports apt, dnf, yum, and xcode-select."
-         exit 1
-      fi
-   else
-      echo 'Ok, we must abort then.'
-      exit
-   fi
+# Help/version options only display their info and exit
+if $help_only; then
+   display_help
+   exit
+elif $version_only; then
+   display_version
+   exit
 fi
 
-# Clone the project if the dir doesn't exist
-REPO_DIR="$BASEDIR/docker-host"
-REPO_URL="https://github.com/uicpharm/docker-host.git"
-mkdir -p "$BASEDIR" || exit 1
-[ ! -d "$REPO_DIR" ] && git clone -b "$branch" "$REPO_URL" "$REPO_DIR"
-[[ -d $REPO_DIR ]] && echo "The docker-host project is installed at $ul$REPO_DIR$norm."
-cd "$REPO_DIR" || exit 1
+display_title
+# Warn that we will ask for sudo password.
+if [[ $EUID -ne 0 ]]; then
+   echo "Part of the installation requires 'sudo'. You may be asked for a sudo password."
+   echo
+fi
 
 # Calculate the default flavor based on what we see on the system
 default_flavor=''
@@ -103,7 +148,7 @@ elif [[ -f /etc/os-release ]]; then
 fi
 
 # Available flavor installers
-flavors=$(find . -mindepth 1 -maxdepth 1 \( -type d -o -type l \) ! -name 'exp' ! -name 'node_modules' ! -name 's*' ! -name '.*' | cut -d'/' -f2 | sort)
+flavors=$(find "$dir" -mindepth 1 -maxdepth 1 \( -type d -o -type l \) ! -name 'exp' ! -name 'node_modules' ! -name 's*' ! -name '.*' | awk -F'/' '{print $NF}' | sort)
 [[ ! $flavors =~ $default_flavor ]] && default_flavor=''
 
 if [[ -n $default_flavor ]] && yorn "It looks like you're running on $ul$default_flavor$norm, is that right?" y; then
@@ -118,7 +163,20 @@ fi
 
 if [[ ! $flavors =~ $flavor ]]; then
    echo "Aborting because $ul$flavor$norm is not a valid choice."
-else
-   cd "$flavor" || exit 1
-   ./setup.sh
+   exit 1
 fi
+
+# All flavors should run as sudo, except macOS.
+cmd=(env) && [[ $flavor != macos ]] && cmd=(sudo env)
+cmd+=(DEV="$dev")
+if $stacks_only; then
+   cd "$dir/shared" || exit 1
+   cmd+=(./stacks.sh)
+elif $runner_only; then
+   cd "$dir/shared" || exit 1
+   cmd+=(./github-actions-runner.sh)
+else
+   cd "$dir/$flavor" || exit 1
+   cmd+=(./setup.sh)
+fi
+"${cmd[@]}"

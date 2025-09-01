@@ -1,6 +1,7 @@
 #!/bin/bash
 
 scr_dir=$(realpath "${0%/*}")
+[[ -z $DEV ]] && DEV=false
 
 SCRIPT_TITLE="Install Docker/Podman"
 if [[ " $* " == *" --title "* ]]; then echo "$SCRIPT_TITLE"; exit 0; fi
@@ -11,18 +12,21 @@ sleep 2
 dnf install -y python-dotenv container-tools podman-compose
 
 # Add scripts to /usr/bin so it will be in the path
-if [ -d '/usr/bin' ]; then
-   bin_dir='/usr/bin'
-elif [ -d '/usr/local/bin' ]; then
-   bin_dir='/usr/local/bin'
+if [[ -d /usr/bin ]]; then
+   bin_dir=/usr/bin
+elif [[ -d /usr/local/bin ]]; then
+   bin_dir=/usr/local/bin
 fi
-if [ -n "$bin_dir" ]; then
-   for scr_name in "$scr_dir"/../shared/bin/*.sh; do
-      ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
+if [[ -n $bin_dir ]]; then
+   echo "Installing scripts to $(tput smul)$bin_dir$(tput rmul) (may require a password):"
+   for scr_name in "$scr_dir"/../shared/bin/*.sh "$scr_dir"/bin/*.sh; do
+      cmd=(install -b -v) && $DEV && cmd=(ln -f -v -s)
+      cmd+=("$(realpath "$scr_name")")
+      cmd+=("$bin_dir/$(basename "$scr_name" .sh)")
+      "${cmd[@]}"
    done
-   for scr_name in "$scr_dir"/bin/*.sh; do
-      ln -f -s "$(realpath "$scr_name")" "$bin_dir/$(basename "$scr_name" .sh)"
-   done
+else
+   echo "$(tput setaf 1)Cannot install scripts to $(tput smul)$bin_dir$(tput rmul) because it wasn't found.$(tput sgr0)" >&2
 fi
 
 # Silence Docker emulation messages

@@ -6,10 +6,10 @@ networks:
    backend:
 
 secrets:
-   nginxproxymanager_db_password:
-      file: ../secrets/nginxproxymanager_db_password.txt
-   nginxproxymanager_db_root_password:
-      file: ../secrets/nginxproxymanager_db_root_password.txt
+   db_password:
+      file: ./secrets/db_password.txt
+   db_root_password:
+      file: ./secrets/db_root_password.txt
 
 services:
 
@@ -27,13 +27,13 @@ services:
          DB_MYSQL_HOST: 'db'
          DB_MYSQL_PORT: 3306
          DB_MYSQL_USER: 'npm'
-         DB_MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
+         DB_MYSQL_PASSWORD__FILE: /run/secrets/db_password
          DB_MYSQL_NAME: 'npm'
       volumes:
          - 'data:/data'
          - 'letsencrypt:/etc/letsencrypt'
       secrets:
-         - nginxproxymanager_db_password
+         - db_password
       networks:
          - frontend
          - backend
@@ -43,15 +43,15 @@ services:
       privileged: true
       restart: unless-stopped
       environment:
-         MYSQL_ROOT_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_root_password
+         MYSQL_ROOT_PASSWORD__FILE: /run/secrets/db_root_password
          MYSQL_DATABASE: 'npm'
          MYSQL_USER: 'npm'
-         MYSQL_PASSWORD__FILE: /run/secrets/nginxproxymanager_db_password
+         MYSQL_PASSWORD__FILE: /run/secrets/db_password
       volumes:
          - 'db:/var/lib/mysql'
       secrets:
-         - nginxproxymanager_db_password
-         - nginxproxymanager_db_root_password
+         - db_password
+         - db_root_password
       networks:
          - backend
 
