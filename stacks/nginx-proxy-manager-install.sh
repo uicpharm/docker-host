@@ -16,8 +16,8 @@ target_dir=/etc/nginxproxymanager
 $DEV && target_dir=$scr_dir
 sec_dir="$target_dir/secrets"
 yml_file="$target_dir/nginx-proxy-manager.yml"
+install -d "$sec_dir"
 if ! $DEV; then
-   install -d "$sec_dir"
    install -b "$scr_dir/nginx-proxy-manager.yml" "$yml_file"
 fi
 [[ $* == -u || $* == --upgrade ]] && upgrade_args=(--pull always)
