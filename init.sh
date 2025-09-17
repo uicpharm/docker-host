@@ -37,8 +37,14 @@ function yorn() {
 
 function display_version() {
    echo -n "Docker Host version $version build "
-   find "$dir" -type f \( -name '*.sh' -o -name '*.yml' \) -not -path '*/node_modules/*' | \
-   sort | xargs cat | sha256sum | cut -c1-8
+   # To calculate a build hash, we hash all of the sorted files according to these rules:
+   # - Exclude node_modules, exp, and hidden files/directories (using -prune)
+   # - Include symlinks, both files (-type f and -type l) and directories (-L)
+   # - Include only .sh and .yml files
+   find -L "$dir" \
+      \( -path '*/node_modules' -o -path '*/exp' -o -path '*/.*' \) -prune -o \
+      \( \( -type f -o -type l \) -a \( -name '*.sh' -o -name '*.yml' \) \) -print0 | \
+      LC_ALL=C sort -z | xargs -0 cat | sha256sum | cut -c1-8
 }
 
 # Title for the script
