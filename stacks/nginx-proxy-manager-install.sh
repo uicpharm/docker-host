@@ -14,9 +14,11 @@ scr_dir=$(realpath "$(dirname "$0")")
 target_dir=/etc/nginxproxymanager
 [[ "$(uname)" == "Darwin" || $EUID -ne 0 ]] && target_dir=$HOME/.nginxproxymanager
 $DEV && target_dir=$scr_dir
+custom_dir="$target_dir/custom"
 sec_dir="$target_dir/secrets"
 yml_file="$target_dir/nginx-proxy-manager.yml"
 install -d "$sec_dir"
+install -d "$custom_dir"
 if ! $DEV; then
    install -b "$scr_dir/nginx-proxy-manager.yml" "$yml_file"
 fi

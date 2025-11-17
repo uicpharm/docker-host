@@ -32,6 +32,7 @@ services:
       volumes:
          - 'data:/data'
          - 'letsencrypt:/etc/letsencrypt'
+         - './custom:/var/www/custom'
       secrets:
          - db_password
       networks:
