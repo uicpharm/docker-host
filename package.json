@@ -5,7 +5,7 @@
    "scripts": {
       "test": "npm run check-node",
       "standards": "npm run shellcheck && npm run yamllint && npm run markdownlint && npm run cspell && npm run commitlint",
-      "check-node": "check-node-version --node $(cat .nvmrc) --npm 10.5.0 --print",
+      "check-node": "check-node-version --node $(cat .nvmrc) --npm 11.11.0 --print",
       "commitlint": "commitlint --from 5b66a72cc2632916",
       "cspell": "cspell . --show-suggestions --no-progress",
       "shellcheck": "shellcheck **/*.sh",
@@ -23,6 +23,6 @@
    },
    "homepage": "https://github.com/uicpharm/docker-host#readme",
    "devDependencies": {
-      "@uicpharm/standardization": "github:uicpharm/standardization#0.4.3"
+      "@uicpharm/standardization": "github:uicpharm/standardization#0.5.0"
    }
 }
