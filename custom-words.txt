@@ -5,6 +5,8 @@ buildah
 buildx
 chcon
 chgrp
+civis
+cnorm
 codeready
 containerd
 dotenv
@@ -22,6 +24,7 @@ mktemp
 nodocker
 NOPASSWD
 opencontainers
+padlen
 realpath
 Retzky
 rmul
@@ -30,6 +33,7 @@ runnerdir
 runsvc
 runuser
 scriptnum
+setab
 setaf
 setsebool
 shellenv
