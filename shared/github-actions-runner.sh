@@ -62,17 +62,23 @@ usermod -aG docker $user 2>/dev/null
 mkdir -p /etc/sudoers.d
 sudoers_file=/etc/sudoers.d/$user
 rm -f "$sudoers_file"
-for cmd in docker git deploy; do
-   bin=$(which "$cmd")
-   echo "$user ALL=(ALL) NOPASSWD: $bin" | tee -a "$sudoers_file" > /dev/null
+cmds=(docker git deploy)
+for cmd in "${cmds[@]}"; do
+   if bin=$(command -v "$cmd"); then
+      echo "$user ALL=(ALL) NOPASSWD: $bin" | tee -a "$sudoers_file" > /dev/null
+   fi
 done
-chmod 0440 "$sudoers_file"
-# It's important to check the file so that sudo isn't messed up on the system
-if visudo -cf "$sudoers_file"; then
-   echo "Sudo rules added successfully for $user."
+if [ -f "$sudoers_file" ]; then
+   chmod 0440 "$sudoers_file"
+   # It's important to check the file so that sudo isn't messed up on the system
+   if visudo -cf "$sudoers_file"; then
+      echo "Sudo rules added successfully for $user."
+   else
+      echo "${bold}${red}Failed to add sudo rules. Please fix the issue.$norm" >&2
+      rm -f "$sudoers_file"
+   fi
 else
-   echo "${bold}${red}Failed to add sudo rules. Please fix the issue.$norm" >&2
-   rm -f "$sudoers_file"
+   echo "${bold}${red}Did not create sudoers file because none of the commands (${cmds[*]}) were found.$norm" >&2
 fi
 
 # Actual installation steps of the runner (ran as the new user)
