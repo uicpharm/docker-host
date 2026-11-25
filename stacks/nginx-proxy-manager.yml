@@ -40,14 +40,14 @@ services:
          - backend
 
    db:
-      image: docker.io/jc21/mariadb-aria:10.11.5
-      privileged: true
+      image: docker.io/mariadb:11.4
       restart: unless-stopped
       environment:
-         MYSQL_ROOT_PASSWORD__FILE: /run/secrets/db_root_password
-         MYSQL_DATABASE: 'npm'
-         MYSQL_USER: 'npm'
-         MYSQL_PASSWORD__FILE: /run/secrets/db_password
+         MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+         MARIADB_DATABASE: 'npm'
+         MARIADB_USER: 'npm'
+         MARIADB_PASSWORD_FILE: /run/secrets/db_password
+         MARIADB_AUTO_UPGRADE: '1'
       volumes:
          - 'db:/var/lib/mysql'
       secrets:
